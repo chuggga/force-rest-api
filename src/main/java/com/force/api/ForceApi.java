@@ -90,6 +90,14 @@ public class ForceApi {
 				jsonMapper);
 	}
 
+	public ResourceRepresentation getCustom(String path) {
+		return new ResourceRepresentation(apiRequest(new HttpRequest()
+				.url(uriBaseCustom()+path)
+				.method("GET")
+				.header("Accept", "application/json")),
+				jsonMapper);
+	}
+
 	/**
 	 * sends a custom REST API DELETE request
 	 *
@@ -107,6 +115,14 @@ public class ForceApi {
 				jsonMapper);
 	}
 
+	public ResourceRepresentation deleteCustom(String path) {
+		return new ResourceRepresentation(apiRequest(new HttpRequest()
+				.url(uriBaseCustom() + path)
+				.method("DELETE")
+				.header("Accept", "application/json")),
+				jsonMapper);
+	}
+
 	/**
 	 * sends a custom REST API POST request
 	 *
@@ -115,8 +131,10 @@ public class ForceApi {
 	 * @return response from API wrapped in a ResourceRepresentation for multiple deserialization options
 	 */
 	public ResourceRepresentation post(String path, Object input) {
-		return request("POST", path, input);
+		return request("POST", uriBase()+path, input);
 	}
+
+	public ResourceRepresentation postCustom(String path, Object input) { return request("POST", uriBaseCustom()+path, input); }
 
 	/**
 	 * sends a custom REST API PUT request (no test for this method yet).
@@ -126,7 +144,10 @@ public class ForceApi {
 	 * @return response from API wrapped in a ResourceRepresentation for multiple deserialization options
 	 */
 	public ResourceRepresentation put(String path, Object input) {
-		return request("PUT", path, input);
+		return request("PUT", uriBase()+path, input);
+	}
+
+	public ResourceRepresentation putCustom(String path, Object input) { return request("PUT", uriBaseCustom()+path, input);
 	}
 
 	/**
@@ -138,13 +159,18 @@ public class ForceApi {
 	 */
 	public ResourceRepresentation patch(String path, Object input) {
 		char sep = path.contains("?") ? '&' : '?';
-		return request("POST", path+sep+"_HttpMethod=PATCH", input);
+		return request("POST", uriBase()+path+sep+"_HttpMethod=PATCH", input);
+	}
+
+	public ResourceRepresentation patchCustom(String path, Object input) {
+		char sep = path.contains("?") ? '&' : '?';
+		return request("POST", uriBaseCustom()+path+sep+"_HttpMethod=PATCH", input);
 	}
 
 	public ResourceRepresentation request(String method, String path, Object input) {
 		try {
 			return new ResourceRepresentation(apiRequest(new HttpRequest()
-					.url(uriBase() + path)
+					.url(path)
 					.method(method)
 					.header("Accept", "application/json")
 					.header("Content-Type", "application/json")
@@ -456,6 +482,10 @@ public class ForceApi {
 
 	private final String uriBase() {
 		return(session.getApiEndpoint()+"/services/data/"+config.getApiVersionString());
+	}
+
+	private final String uriBaseCustom() {
+		return(session.getApiEndpoint()+"/services/apexrest");
 	}
 
 	private final HttpResponse apiRequest(HttpRequest req) {
